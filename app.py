@@ -59,7 +59,56 @@ with tab3:
 
 with tab4:
     st.header("Shift Instances")
-    st.session_state.activities = st.data_editor(st.session_state.activities, num_rows="dynamic", key="edit_acts")
+    view_mode = st.radio("View Mode", ["Table", "Calendar"], horizontal=True)
+
+    if view_mode == "Table":
+        st.session_state.activities = st.data_editor(st.session_state.activities, num_rows="dynamic", key="edit_acts")
+    else:
+        # Calendar View Logic
+        # 1. Add Event Form
+        with st.expander("➕ Add New Shift", expanded=False):
+            with st.form("add_shift_form"):
+                f_id = st.text_input("Shift ID", value=f"a{len(st.session_state.activities)+1}")
+                f_type = st.selectbox("Type", options=st.session_state.activity_types['id'].tolist())
+                f_date = st.date_input("Date", value=datetime.today())
+                c1, c2 = st.columns(2)
+                f_start = c1.time_input("Start Time", value=time(9, 0))
+                f_end = c2.time_input("End Time", value=time(17, 0))
+                f_group = st.text_input("Group ID (optional)")
+                
+                if st.form_submit_button("Add Shift"):
+                    # Ensure date is a datetime object to match existing data if needed, 
+                    # but actually keeping it as date is fine if we are consistent.
+                    # We'll use datetime for consistency.
+                    new_date = datetime.combine(f_date, time.min)
+                    new_row = pd.DataFrame([{"id": f_id, "type_id": f_type, "date": new_date, "start": f_start, "end": f_end, "group": f_group}])
+                    st.session_state.activities = pd.concat([st.session_state.activities, new_row], ignore_index=True)
+                    st.rerun()
+
+        # 2. Visual Calendar (Simple Grid)
+        df = st.session_state.activities.copy()
+        if not df.empty:
+            # Ensure date is date type for grouping
+            df['date_only'] = pd.to_datetime(df['date']).dt.date
+            unique_dates = sorted(df['date_only'].unique())
+            
+            # Display in columns (max 5 per row for readability)
+            for i in range(0, len(unique_dates), 5):
+                batch = unique_dates[i:i+5]
+                cols = st.columns(5)
+                for j, d in enumerate(batch):
+                    with cols[j]:
+                        st.markdown(f"📅 **{d.strftime('%a, %b %d')}**")
+                        day_shifts = df[df['date_only'] == d].sort_values("start")
+                        for _, s in day_shifts.iterrows():
+                            with st.container(border=True):
+                                st.markdown(f"**{s['type_id']}**")
+                                st.caption(f"🕒 {s['start'].strftime('%H:%M')} - {s['end'].strftime('%H:%M')}")
+                                if s['group']:
+                                    st.caption(f"🔗 {s['group']}")
+                st.divider()
+        else:
+            st.info("No shifts defined yet.")
 
 # Solver Logic
 if st.sidebar.button("🚀 Run Solver", use_container_width=True):
