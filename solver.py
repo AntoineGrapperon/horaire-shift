@@ -78,7 +78,7 @@ class ShiftSolver:
                         self.model.Add(self.room_assignments[(room.id, act1.id)] + self.room_assignments[(room.id, act2.id)] <= 1)
 
     def _setup_equity_objective(self):
-        # Weighted Burden Points for Doctors
+        # 1. Weighted Burden Points for Doctors (Harder Equity)
         doctor_burdens = []
         for doctor in self.doctors:
             burden = sum(
@@ -95,8 +95,40 @@ class ShiftSolver:
             self.model.Add(burden >= min_burden)
             self.model.Add(burden <= max_burden)
 
-        # Main Objective: Equity (Spread)
-        self.model.Minimize(max_burden - min_burden)
+        # 2. Preference Penalties (Soft Constraints)
+        preference_penalties = []
+        from models import PreferenceType
+        for doctor in self.doctors:
+            for pref in doctor.preferences:
+                for activity in self.activities:
+                    is_conflict = False
+                    
+                    if pref.type == PreferenceType.AVOID_DAY:
+                        if activity.start_time.weekday() == pref.day_of_week:
+                            is_conflict = True
+                    
+                    elif pref.type == PreferenceType.AVOID_TIME_RANGE:
+                        # Check time overlap within the same day
+                        p_start = pref.start_time.time()
+                        p_end = pref.end_time.time()
+                        a_start = activity.start_time.time()
+                        a_end = activity.end_time.time()
+                        
+                        if a_start < p_end and p_start < a_end:
+                            is_conflict = True
+                    
+                    if is_conflict:
+                        # penalty = assignment * weight
+                        penalty = self.model.NewIntVar(0, pref.weight, f'pref_penalty_{doctor.id}_{activity.id}')
+                        self.model.Add(penalty == self.assignments[(doctor.id, activity.id)] * pref.weight)
+                        preference_penalties.append(penalty)
+
+        # Main Objective: 
+        # Minimize (Spread of Burden * 10) + Total Preference Penalties
+        # We multiply equity by 10 to give it higher priority than a single small preference.
+        equity_weight = 10
+        total_penalties = sum(preference_penalties)
+        self.model.Minimize(equity_weight * (max_burden - min_burden) + total_penalties)
 
     def solve(self):
         self._setup_variables()
