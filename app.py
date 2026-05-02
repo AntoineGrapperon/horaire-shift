@@ -47,15 +47,84 @@ tab1, tab2, tab3, tab4 = st.tabs(["👨‍⚕️ Doctors", "🏥 Rooms", "📋 A
 
 with tab1:
     st.header("Manage Doctors")
-    st.session_state.doctors = st.data_editor(st.session_state.doctors, num_rows="dynamic", key="edit_docs")
+    view_mode_doc = st.radio("View Mode", ["Table", "Cards"], horizontal=True, key="doc_view")
+
+    if view_mode_doc == "Table":
+        st.session_state.doctors = st.data_editor(st.session_state.doctors, num_rows="dynamic", key="edit_docs")
+    else:
+        with st.expander("➕ Add New Doctor", expanded=False):
+            with st.form("add_doc_form"):
+                d_id = st.text_input("ID")
+                d_name = st.text_input("Name")
+                d_skills = st.text_input("Skills (comma separated)")
+                d_hist = st.number_input("Historical Burden", min_value=0, value=0)
+                if st.form_submit_button("Add Doctor"):
+                    new_doc = pd.DataFrame([{"id": d_id, "name": d_name, "skills": d_skills, "hist_burden": d_hist}])
+                    st.session_state.doctors = pd.concat([st.session_state.doctors, new_doc], ignore_index=True)
+                    st.rerun()
+        
+        cols = st.columns(3)
+        for idx, doc in st.session_state.doctors.iterrows():
+            with cols[idx % 3]:
+                with st.container(border=True):
+                    st.subheader(doc['name'])
+                    st.caption(f"🆔 {doc['id']}")
+                    st.write(f"**Skills:** {doc['skills']}")
+                    st.metric("Historical Burden", doc['hist_burden'])
 
 with tab2:
     st.header("Manage Rooms")
-    st.session_state.rooms = st.data_editor(st.session_state.rooms, num_rows="dynamic", key="edit_rooms")
+    view_mode_room = st.radio("View Mode", ["Table", "Cards"], horizontal=True, key="room_view")
+
+    if view_mode_room == "Table":
+        st.session_state.rooms = st.data_editor(st.session_state.rooms, num_rows="dynamic", key="edit_rooms")
+    else:
+        with st.expander("➕ Add New Room", expanded=False):
+            with st.form("add_room_form"):
+                r_id = st.text_input("ID")
+                r_name = st.text_input("Name")
+                r_equip = st.text_input("Equipment (comma separated)")
+                if st.form_submit_button("Add Room"):
+                    new_room = pd.DataFrame([{"id": r_id, "name": r_name, "equipment": r_equip}])
+                    st.session_state.rooms = pd.concat([st.session_state.rooms, new_room], ignore_index=True)
+                    st.rerun()
+
+        cols = st.columns(3)
+        for idx, room in st.session_state.rooms.iterrows():
+            with cols[idx % 3]:
+                with st.container(border=True):
+                    st.subheader(room['name'])
+                    st.caption(f"🆔 {room['id']}")
+                    st.write(f"**Equipment:** {room['equipment']}")
 
 with tab3:
     st.header("Activity Definitions")
-    st.session_state.activity_types = st.data_editor(st.session_state.activity_types, num_rows="dynamic", key="edit_types")
+    view_mode_type = st.radio("View Mode", ["Table", "Cards"], horizontal=True, key="type_view")
+
+    if view_mode_type == "Table":
+        st.session_state.activity_types = st.data_editor(st.session_state.activity_types, num_rows="dynamic", key="edit_types")
+    else:
+        with st.expander("➕ Add New Activity Type", expanded=False):
+            with st.form("add_type_form"):
+                t_id = st.text_input("ID")
+                t_name = st.text_input("Name")
+                t_skills = st.text_input("Required Skills (comma separated)")
+                t_equip = st.text_input("Required Equipment (comma separated)")
+                t_burden = st.number_input("Burden Weight", min_value=1, value=1)
+                if st.form_submit_button("Add Activity Type"):
+                    new_type = pd.DataFrame([{"id": t_id, "name": t_name, "skills": t_skills, "equipment": t_equip, "burden": t_burden}])
+                    st.session_state.activity_types = pd.concat([st.session_state.activity_types, new_type], ignore_index=True)
+                    st.rerun()
+
+        cols = st.columns(3)
+        for idx, t in st.session_state.activity_types.iterrows():
+            with cols[idx % 3]:
+                with st.container(border=True):
+                    st.subheader(t['name'])
+                    st.caption(f"🆔 {t['id']}")
+                    st.write(f"**Required Skills:** {t['skills']}")
+                    st.write(f"**Required Equipment:** {t['equipment']}")
+                    st.metric("Burden Weight", t['burden'])
 
 with tab4:
     st.header("Shift Instances")
