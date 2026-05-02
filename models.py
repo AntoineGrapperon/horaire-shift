@@ -10,13 +10,27 @@ class Skill:
 class Equipment:
     name: str
 
+from enum import Enum
+
+class PreferenceType(Enum):
+    AVOID_DAY = "avoid_day"
+    AVOID_TIME_RANGE = "avoid_time_range"
+
+@dataclass(frozen=True)
+class Preference:
+    type: PreferenceType
+    weight: int  # Penalty for violating the preference
+    day_of_week: Optional[int] = None # 0=Monday, ..., 6=Sunday
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+
 @dataclass
 class Doctor:
     id: str
     name: str
     skills: Set[Skill]
     unavailabilities: List[Tuple[datetime, datetime]] = field(default_factory=list)
-    preferences: List[str] = field(default_factory=list) # e.g., ["no_friday"]
+    preferences: List[Preference] = field(default_factory=list)
 
 @dataclass
 class Room:
