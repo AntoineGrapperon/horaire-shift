@@ -9,8 +9,8 @@
 ## Phase 2: Enhanced Logic
 - [x] Complex preferences (avoiding specific days)
 - [x] Room/Equipment constraints
-- [ ] Multi-day activities (on-calls)
+- [x] Multi-day activities (on-calls)
 
 ## Phase 3: Equity & Analytics
-- [ ] Burden points historical tracking
-- [ ] Equity reporting
+- [x] Burden points historical tracking
+- [x] Equity reporting

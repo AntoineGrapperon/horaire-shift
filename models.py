@@ -31,6 +31,7 @@ class Doctor:
     skills: Set[Skill]
     unavailabilities: List[Tuple[datetime, datetime]] = field(default_factory=list)
     preferences: List[Preference] = field(default_factory=list)
+    historical_burden: int = 0
 
 @dataclass
 class Room:
@@ -54,3 +55,4 @@ class ActivityInstance:
     end_time: datetime
     required_doctors: int = 1
     fixed_room: Optional[Room] = None
+    group_id: Optional[str] = None

@@ -12,9 +12,9 @@ def create_sample_data():
     mri = Equipment("MRI")
 
     # Doctors
-    dr_smith = Doctor(id="smith", name="Dr. Smith", skills={surgery, general})
-    dr_jones = Doctor(id="jones", name="Dr. Jones", skills={general, emergency})
-    dr_williams = Doctor(id="williams", name="Dr. Williams", skills={surgery, emergency})
+    dr_smith = Doctor(id="smith", name="Dr. Smith", skills={surgery, general}, historical_burden=20)
+    dr_jones = Doctor(id="jones", name="Dr. Jones", skills={general, emergency}, historical_burden=5)
+    dr_williams = Doctor(id="williams", name="Dr. Williams", skills={surgery, emergency}, historical_burden=0)
     
     # Preference: Dr. Jones wants to avoid working on Wednesday (2)
     # 2024-05-01 is a Wednesday
@@ -42,6 +42,7 @@ def create_sample_data():
     appendectomy = ActivityType(id="app", name="Appendectomy", required_skills={surgery}, required_equipment={mri}, burden_weight=10)
     checkup = ActivityType(id="chk", name="Regular Checkup", required_skills={general}, burden_weight=2)
     er_shift = ActivityType(id="er", name="ER Shift", required_skills={emergency}, required_equipment={xray}, burden_weight=15)
+    on_call = ActivityType(id="on_call", name="On-Call", required_skills={general}, burden_weight=5)
 
     # Activity Instances (2024-05-01 is a Wednesday)
     activities = [
@@ -49,6 +50,14 @@ def create_sample_data():
         ActivityInstance(id="a2", activity_type=checkup, start_time=datetime(2024, 5, 1, 9, 0), end_time=datetime(2024, 5, 1, 10, 0)),
         ActivityInstance(id="a3", activity_type=er_shift, start_time=datetime(2024, 5, 1, 13, 0), end_time=datetime(2024, 5, 1, 17, 0)),
         ActivityInstance(id="a4", activity_type=checkup, start_time=datetime(2024, 5, 1, 14, 0), end_time=datetime(2024, 5, 1, 15, 0)),
+        
+        # Multi-day activity (On-Call grouped)
+        ActivityInstance(id="call_night1", activity_type=on_call, 
+                         start_time=datetime(2024, 5, 1, 20, 0), end_time=datetime(2024, 5, 2, 8, 0), 
+                         group_id="weekend_call_1"),
+        ActivityInstance(id="call_night2", activity_type=on_call, 
+                         start_time=datetime(2024, 5, 2, 20, 0), end_time=datetime(2024, 5, 3, 8, 0), 
+                         group_id="weekend_call_1"),
     ]
 
     return doctors, activities, rooms
@@ -78,6 +87,20 @@ def main():
             room = room_map[room_assigns[act_id]]
             print(f"  - {doc.name} assigned to {act.activity_type.name} "
                   f"in {room.name} ({act.start_time.strftime('%H:%M')} - {act.end_time.strftime('%H:%M')})")
+        
+        print("\n--- Equity Report ---")
+        assigned_burdens = {d.id: 0 for d in doctors}
+        for d_id, a_id in doc_assigns:
+            assigned_burdens[d_id] += act_map[a_id].activity_type.burden_weight
+        
+        totals = []
+        for d in doctors:
+            curr = assigned_burdens[d.id]
+            total = d.historical_burden + curr
+            totals.append(total)
+            print(f"  {d.name:<12}: Hist={d.historical_burden:>3}, Curr={curr:>3}, Total={total:>3}")
+        
+        print(f"  Overall Spread (Max-Min Total): {max(totals) - min(totals)}")
     else:
         print("No solution found.")
 

@@ -77,17 +77,34 @@ class ShiftSolver:
                     if act1.start_time < act2.end_time and act2.start_time < act1.end_time:
                         self.model.Add(self.room_assignments[(room.id, act1.id)] + self.room_assignments[(room.id, act2.id)] <= 1)
 
+        # --- GROUP CONSTRAINTS ---
+        activity_groups = {}
+        for activity in self.activities:
+            if activity.group_id:
+                if activity.group_id not in activity_groups:
+                    activity_groups[activity.group_id] = []
+                activity_groups[activity.group_id].append(activity)
+        
+        for group_id, group_activities in activity_groups.items():
+            if len(group_activities) > 1:
+                first_act = group_activities[0]
+                for other_act in group_activities[1:]:
+                    for doctor in self.doctors:
+                        self.model.Add(
+                            self.assignments[(doctor.id, first_act.id)] == self.assignments[(doctor.id, other_act.id)]
+                        )
+
     def _setup_equity_objective(self):
         # 1. Weighted Burden Points for Doctors (Harder Equity)
         doctor_burdens = []
         for doctor in self.doctors:
-            burden = sum(
+            burden = doctor.historical_burden + sum(
                 self.assignments[(doctor.id, activity.id)] * activity.activity_type.burden_weight
                 for activity in self.activities
             )
             doctor_burdens.append(burden)
 
-        max_possible_burden = sum(a.activity_type.burden_weight for a in self.activities)
+        max_possible_burden = sum(a.activity_type.burden_weight for a in self.activities) + max((d.historical_burden for d in self.doctors), default=0)
         min_burden = self.model.NewIntVar(0, max_possible_burden, 'min_burden')
         max_burden = self.model.NewIntVar(0, max_possible_burden, 'max_burden')
 
