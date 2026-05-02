@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from models import Skill, Doctor, ActivityType, ActivityInstance, Room, Equipment
+from models import Skill, Doctor, ActivityType, ActivityInstance, Room, Equipment, Preference, PreferenceType
 from solver import ShiftSolver
 
 def create_sample_data():
@@ -16,6 +16,19 @@ def create_sample_data():
     dr_jones = Doctor(id="jones", name="Dr. Jones", skills={general, emergency})
     dr_williams = Doctor(id="williams", name="Dr. Williams", skills={surgery, emergency})
     
+    # Preference: Dr. Jones wants to avoid working on Wednesday (2)
+    # 2024-05-01 is a Wednesday
+    dr_jones.preferences = [
+        Preference(type=PreferenceType.AVOID_DAY, weight=100, day_of_week=2)
+    ]
+    
+    # Preference: Dr. Williams wants to avoid morning shifts (8:00 - 12:00)
+    morning_start = datetime(2024, 1, 1, 8, 0)
+    morning_end = datetime(2024, 1, 1, 12, 0)
+    dr_williams.preferences = [
+        Preference(type=PreferenceType.AVOID_TIME_RANGE, weight=50, start_time=morning_start, end_time=morning_end)
+    ]
+
     dr_smith.unavailabilities = [(datetime(2024, 5, 1, 8, 0), datetime(2024, 5, 1, 12, 0))]
     doctors = [dr_smith, dr_jones, dr_williams]
 
@@ -30,7 +43,7 @@ def create_sample_data():
     checkup = ActivityType(id="chk", name="Regular Checkup", required_skills={general}, burden_weight=2)
     er_shift = ActivityType(id="er", name="ER Shift", required_skills={emergency}, required_equipment={xray}, burden_weight=15)
 
-    # Activity Instances
+    # Activity Instances (2024-05-01 is a Wednesday)
     activities = [
         ActivityInstance(id="a1", activity_type=appendectomy, start_time=datetime(2024, 5, 1, 9, 0), end_time=datetime(2024, 5, 1, 11, 0)),
         ActivityInstance(id="a2", activity_type=checkup, start_time=datetime(2024, 5, 1, 9, 0), end_time=datetime(2024, 5, 1, 10, 0)),
@@ -48,7 +61,7 @@ def main():
     result = solver.solve()
 
     if result:
-        print(f"Solution found! Equity Score (spread): {result['equity_score']}")
+        print(f"Solution found! Objective Score: {result['equity_score']}")
         
         doc_assigns = result['doctor_assignments']
         room_assigns = {a_id: r_id for r_id, a_id in result['room_assignments']}
