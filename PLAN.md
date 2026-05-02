@@ -7,7 +7,7 @@
 - [x] Sample Data & Demo (`main.py`)
 
 ## Phase 2: Enhanced Logic
-- [ ] Complex preferences (avoiding specific days)
+- [x] Complex preferences (avoiding specific days)
 - [x] Room/Equipment constraints
 - [ ] Multi-day activities (on-calls)
 
