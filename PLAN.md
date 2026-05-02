@@ -1,10 +1,10 @@
 # Project Roadmap - Doctor Shift Scheduler
 
 ## Phase 1: Foundation
-- [ ] Project Setup & `requirements.txt`
-- [ ] Data Modeling (`models.py`)
-- [ ] Core Solver Implementation (`solver.py`)
-- [ ] Sample Data & Demo (`main.py`)
+- [x] Project Setup & `requirements.txt`
+- [x] Data Modeling (`models.py`)
+- [x] Core Solver Implementation (`solver.py`)
+- [x] Sample Data & Demo (`main.py`)
 
 ## Phase 2: Enhanced Logic
 - [ ] Complex preferences (avoiding specific days)
