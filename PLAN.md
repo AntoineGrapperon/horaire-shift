@@ -8,7 +8,7 @@
 
 ## Phase 2: Enhanced Logic
 - [ ] Complex preferences (avoiding specific days)
-- [ ] Room/Equipment constraints
+- [x] Room/Equipment constraints
 - [ ] Multi-day activities (on-calls)
 
 ## Phase 3: Equity & Analytics
