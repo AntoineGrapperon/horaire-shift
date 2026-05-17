@@ -12,4 +12,25 @@ To eliminate the manual overhead of hospital rostering while ensuring 100% cover
 - **Coverage Heatmaps:** Instant visual identification of staffing gaps or over-scheduling.
 
 ## Technical Vision
-Built for reliability and precision, ShiftMed utilizes a high-performance backend solver to handle complex combinatorial scheduling problems, paired with a modern, responsive frontend for real-time collaboration.
+ShiftMed is built as a unified, lightweight Python application powered by **Streamlit**. It integrates the UI, database management (SQLite), and the mathematical optimization engine (Google OR-Tools) into a single, high-performance container. This architecture ensures rapid deployment on small VPS instances without the overhead of separate frontend/backend pipelines.
+
+## Quick Start (Local Development)
+
+### Prerequisites
+- Python 3.10+
+- Docker (optional)
+
+### Local Setup
+1. Clone the repository.
+2. Run the setup and start script:
+   ```bash
+   ./start-local.sh
+   ```
+3. Access the application at `http://localhost:8501`.
+
+### Docker Setup
+1. Build and run with Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
+2. Access the application at `http://localhost:8501`.

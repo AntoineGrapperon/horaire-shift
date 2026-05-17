@@ -13,9 +13,10 @@ To ensure high performance on a small VPS while maintaining developer productivi
 ## 3. The Solver: Google OR-Tools (CP-SAT)
 *   **Why:** A world-class constraint programming solver. It is lightweight in terms of setup but powerful enough to handle complex medical scheduling constraints in seconds.
 
-## 4. Unified UI: Streamlit
-*   **Why:** Enables rapid development of data-rich dashboards and interactive shift management tools using pure Python. It eliminates the need for a separate frontend-backend build pipeline.
-*   **Delivery:** Served directly as a Python application, providing a seamless reactive interface for clinicians and managers.
+## 4. Unified Application: Streamlit
+*   **Why:** Enables rapid development of data-rich dashboards and interactive shift management tools using pure Python. 
+*   **Consolidation:** The frontend and backend logic are unified within the Streamlit application, eliminating the need for REST APIs or separate build pipelines for internal tooling.
+*   **Delivery:** Served as a single containerized Python application, providing a seamless reactive interface.
 
 ## 5. Authentication: Streamlit Authenticator / JWT
 *   **Why:** Provides secure access control for different personas (Managers vs. Clinicians) directly within the Streamlit app.

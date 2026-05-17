@@ -1,18 +1,12 @@
 services:
-  api:
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8501:8501"
     volumes:
-      - ./backend:/app
+      - .:/app
     environment:
       - DATABASE_URL=sqlite:///./shiftmed.db
     restart: always
-
-  # Frontend placeholder (to be built later)
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
