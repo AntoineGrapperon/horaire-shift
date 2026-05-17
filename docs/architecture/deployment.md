@@ -1,17 +1,17 @@
-# VPS Deployment Strategy
+# VPS Deployment Strategy (Streamlit Proto)
 
 ## 1. Containerization (Docker)
-*   A single `docker-compose.yml` defining two services:
-    *   `api`: FastAPI + SQLite + Solver.
-    *   `gateway`: Nginx (to serve the React frontend and proxy API requests).
+*   A single `Dockerfile` or `docker-compose.yml` defining the main service:
+    *   `app`: Streamlit Application + SQLite + Solver.
+*   **Port:** Streamlit typically runs on port 8501.
 
 ## 2. Reverse Proxy & SSL
-*   **Nginx:** Handles SSL termination (via Let's Encrypt/Certbot).
-*   **Security:** Only ports 80 and 443 are exposed to the internet.
+*   **Nginx (Optional for Proto):** Can still be used to handle SSL termination (via Let's Encrypt/Certbot) and map domain to port 8501.
+*   **Direct Access:** For early prototyping, the app can be accessed directly via the VPS IP and port.
 
 ## 3. Database Backups
 *   Since SQLite is a single file, backups are a simple `cp` command to a secure S3 bucket or external volume, triggered via a daily cron job.
 
 ## 4. Performance Tuning
-*   **Worker Count:** Limited to 2-4 Uvicorn workers to stay within small VPS RAM limits (e.g., 1GB - 2GB RAM).
+*   **Memory Management:** Streamlit can be memory-intensive with large datasets; limit data caching to stay within VPS RAM limits.
 *   **Solver Timeout:** Set to 30-60 seconds to prevent CPU spikes from hanging the server.

@@ -2,9 +2,9 @@
 
 To ensure high performance on a small VPS while maintaining developer productivity, we will use the following stack:
 
-## 1. Backend: Python + FastAPI
-*   **Why:** Extremely fast execution, native asynchronous support, and excellent integration with mathematical solver libraries.
-*   **API Style:** RESTful API with automated OpenAPI documentation.
+## 1. Core Logic: Python
+*   **Why:** Native integration with mathematical solver libraries and data processing tools.
+*   **Structure:** Modular Python services for template expansion, constraint modeling, and database interactions.
 
 ## 2. Database: SQLite
 *   **Why:** Zero-config, single-file database. On a small VPS, it eliminates the memory overhead of a separate PostgreSQL/MySQL process.
@@ -13,9 +13,9 @@ To ensure high performance on a small VPS while maintaining developer productivi
 ## 3. The Solver: Google OR-Tools (CP-SAT)
 *   **Why:** A world-class constraint programming solver. It is lightweight in terms of setup but powerful enough to handle complex medical scheduling constraints in seconds.
 
-## 4. Frontend: React (Vite) + Tailwind CSS
-*   **Why:** Vite provides a lightning-fast build process. Tailwind keeps CSS bundles small.
-*   **Delivery:** Served as static files via the FastAPI backend or Nginx to save memory.
+## 4. Unified UI: Streamlit
+*   **Why:** Enables rapid development of data-rich dashboards and interactive shift management tools using pure Python. It eliminates the need for a separate frontend-backend build pipeline.
+*   **Delivery:** Served directly as a Python application, providing a seamless reactive interface for clinicians and managers.
 
-## 5. Authentication: JWT (JSON Web Tokens)
-*   **Why:** Stateless authentication reduces the need for server-side session storage.
+## 5. Authentication: Streamlit Authenticator / JWT
+*   **Why:** Provides secure access control for different personas (Managers vs. Clinicians) directly within the Streamlit app.

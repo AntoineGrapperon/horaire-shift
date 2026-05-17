@@ -13,6 +13,7 @@
 *   **Processing:** The Python backend builds a mathematical model and sends it to OR-Tools.
 *   **Output:** A list of `(ShiftID, UserID)` pairs written back to the database.
 
-## 4. Client Layer (The UI)
-*   Fetches `ShiftInstances` via a `/shifts` endpoint.
+## 4. Client Layer (The Streamlit UI)
+*   Interacts directly with the Intelligence Layer via internal Python function calls or a shared database.
 *   Displays a monthly calendar view with color-coded assignments and conflict warnings.
+*   Provides interactive widgets for managers to trigger the Solver and for clinicians to view their shifts.
