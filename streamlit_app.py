@@ -2,7 +2,7 @@ import streamlit as st
 from app.database import engine, Base, SessionLocal
 from app.models import User, UserRole
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+import bcrypt
 
 # Page configuration
 st.set_page_config(
@@ -14,20 +14,24 @@ st.set_page_config(
 # Initialize database
 Base.metadata.create_all(bind=engine)
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
 
 def get_db():
     db = SessionLocal()
     try:
         return db
     finally:
-        pass # Streamlit handles session differently, we'll close manually or use context manager
+        pass # Streamlit handles session differently
 
 def create_admin_if_not_exists():
     db = SessionLocal()
     admin = db.query(User).filter(User.email == "admin@shiftmed.com").first()
     if not admin:
-        hashed_password = pwd_context.hash("admin123")
+        hashed_password = hash_password("admin123")
         admin = User(
             full_name="System Admin",
             email="admin@shiftmed.com",
@@ -49,7 +53,7 @@ def login():
         db = SessionLocal()
         user = db.query(User).filter(User.email == email).first()
         db.close()
-        if user and pwd_context.verify(password, user.hashed_password):
+        if user and verify_password(password, user.hashed_password):
             st.session_state["authenticated"] = True
             st.session_state["user_email"] = user.email
             st.session_state["user_role"] = user.role

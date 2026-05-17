@@ -1,7 +1,6 @@
 streamlit
-streamlit-authenticator
+bcrypt
 sqlalchemy
 pandas
 ortools
-passlib[bcrypt]
 python-dotenv
