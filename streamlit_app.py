@@ -115,7 +115,7 @@ def main():
                             new_user = User(
                                 full_name=full_name,
                                 email=email,
-                                hashed_password=pwd_context.hash(password),
+                                hashed_password=hash_password(password),
                                 role=role,
                                 contract_hours_per_week=contract_hours
                             )
